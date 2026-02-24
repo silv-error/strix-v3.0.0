@@ -1,4 +1,4 @@
-# Discord Auto-Kick Bot v3.0
+# Strix Bot v3.0.0
 
 Professional Discord bot that automatically kicks members who don't verify within a set time period.
 
