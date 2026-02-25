@@ -93,15 +93,15 @@ def setup_background_tasks(bot):
                     kick_successful = False  # Track if kick succeeded
 
                     # Try to send DM (optional, after successful kick)
-                    if config.get('send_dm', False):
-                        try:
-                            await member.send(
-                                f"⚠️ You have been removed from **{guild.name}** because "
-                                f"you did not verify within {config['kick_after_minutes']} minutes."
-                            )
-                            print(f"  ✅ Sent DM to {member.name}")
-                        except:
-                            print(f"  ℹ️ Could not DM {member.name} (DMs disabled)")
+                    # if config.get('send_dm', False):
+                    #     try:
+                    #         await member.send(
+                    #             f"⚠️ You have been removed from **{guild.name}** because "
+                    #             f"you did not verify within {config['kick_after_minutes']} minutes."
+                    #         )
+                    #         print(f"  ✅ Sent DM to {member.name}")
+                    #     except:
+                    #         print(f"  ℹ️ Could not DM {member.name} (DMs disabled)")
                     
                     # Kick the member FIRST
                     try:
