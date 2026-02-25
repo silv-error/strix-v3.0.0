@@ -8,7 +8,7 @@ BOT_PREFIX = '!'
 # Default Server Settings
 UNVERIFIED_ROLE_NAME = "Unverified"
 KICK_AFTER_MINUTES = 2880
-CHECK_INTERVAL_MINUTES = 5
+CHECK_INTERVAL_MINUTES = 30
 SEND_DM_BEFORE_KICK = False
 
 # Permission Settings

@@ -3,8 +3,8 @@
 *.env
 
 # Bot data files
-unverified_members.json
 guild_configs.json
+unverified_members.json
 *.log
 
 # Python cache
