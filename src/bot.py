@@ -80,6 +80,60 @@ class AutoKickBot(commands.Bot):
         except Exception as e:
             print(f"❌ Failed to sync slash commands: {e}")
 
+    async def log_kick(self, guild, member, time_unverified_minutes):
+        """Send a professional log message to the configured log channel"""
+        config = self.get_guild_config(guild.id)
+        log_channel_id = config.get('log_channel_id')
+        
+        if not log_channel_id:
+            return  # No log channel configured
+        
+        log_channel = guild.get_channel(log_channel_id)
+        if not log_channel:
+            return  # Channel not found or deleted
+        
+        # Calculate time components
+        hours = time_unverified_minutes // 60
+        minutes = time_unverified_minutes % 60
+        
+        if hours > 0:
+            time_str = f"{hours}h {minutes}m"
+        else:
+            time_str = f"{minutes}m"
+        
+        # Create clean, professional embed
+        embed = discord.Embed(
+            description=f"**{member.mention}** was removed for not verifying within {config['kick_after_minutes']} minutes.",
+            color=0x2b2d31,  # Discord dark gray
+            timestamp=discord.datetime.now()
+        )
+        
+        embed.set_author(
+            name=f"{member.name}",
+            icon_url=member.display_avatar.url if member.display_avatar else None
+        )
+        
+        embed.add_field(
+            name="Duration Unverified",
+            value=f"`{time_str}`",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="User ID",
+            value=f"`{member.id}`",
+            inline=True
+        )
+        
+        embed.set_footer(text="Auto-Kick System")
+        
+        try:
+            await log_channel.send(embed=embed)
+        except discord.Forbidden:
+            print(f"  ⚠️ Missing permissions to send logs to channel {log_channel.name}")
+        except Exception as e:
+            print(f"  ⚠️ Error sending log: {e}")
+
 
 def create_bot():
     """Factory function to create and configure the bot"""

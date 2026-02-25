@@ -90,7 +90,9 @@ def setup_background_tasks(bot):
                 if time_elapsed >= kick_threshold:
                     print(f"  ⏰ {member.name} exceeded time limit ({minutes_elapsed} min)")
                     
-                    # Try to send DM (optional, will not prevent kick if fails)
+                    kick_successful = False  # Track if kick succeeded
+
+                    # Try to send DM (optional, after successful kick)
                     if config.get('send_dm', False):
                         try:
                             await member.send(
@@ -101,30 +103,67 @@ def setup_background_tasks(bot):
                         except:
                             print(f"  ℹ️ Could not DM {member.name} (DMs disabled)")
                     
-                    # Kick the member (this always happens regardless of DM)
+                    # Kick the member FIRST
                     try:
                         await member.kick(reason=f"Auto-kick: Did not verify within {config['kick_after_minutes']} minutes")
                         print(f"  ✅ Kicked {member.name}")
+                        kick_successful = True
                         total_kicked += 1
-                        
-                        # Log to channel
-                        await send_kick_log(
-                            guild, 
-                            member, 
-                            minutes_elapsed,
-                            config.get('log_channel_id'),
-                            config['kick_after_minutes']
-                        )
                         
                     except discord.Forbidden:
                         print(f"  ❌ Missing permissions to kick {member.name}")
+                        kick_successful = False
+                        
+                        # Log permission error to channel
+                        log_channel_id = config.get('log_channel_id')
+                        if log_channel_id:
+                            log_channel = guild.get_channel(log_channel_id)
+                            if log_channel:
+                                error_embed = discord.Embed(
+                                    title="⚠️ Auto-Kick Failed",
+                                    description=f"Unable to kick **{member.mention}** ({member.name})",
+                                    color=0xe74c3c,  # Red
+                                    timestamp=datetime.now()
+                                )
+                                error_embed.add_field(
+                                    name="Reason",
+                                    value="Missing permissions or role hierarchy issue",
+                                    inline=False
+                                )
+                                error_embed.add_field(
+                                    name="Solution",
+                                    value="Make sure the bot's role is **above** the user's highest role in Server Settings → Roles",
+                                    inline=False
+                                )
+                                error_embed.add_field(
+                                    name="Time Unverified",
+                                    value=f"`{minutes_elapsed} minutes`",
+                                    inline=True
+                                )
+                                error_embed.set_footer(text="Auto-Kick System • User will be retried on next check")
+                                
+                                try:
+                                    await log_channel.send(embed=error_embed)
+                                except:
+                                    pass
+                        kick_successful = False
                     except Exception as e:
                         print(f"  ❌ Error kicking {member.name}: {e}")
+                        kick_successful = False
                     
-                    # Remove from tracking
-                    if guild_id in bot.unverified_members and member_id in bot.unverified_members[guild_id]:
-                        del bot.unverified_members[guild_id][member_id]
-                        bot.save_data()
+                    # Only send DM and log if kick was successful
+                    if kick_successful:
+                        
+                        # Log to channel
+                        await bot.log_kick(guild, member, minutes_elapsed)
+                        
+                        # Remove from tracking (only if kicked successfully)
+                        if guild_id in bot.unverified_members and member_id in bot.unverified_members[guild_id]:
+                            del bot.unverified_members[guild_id][member_id]
+                            bot.save_data()
+                    else:
+                        # Kick failed - keep tracking the member
+                        print(f"  ⚠️ {member.name} still being tracked (kick failed)")
         
         if total_kicked > 0:
             print(f"✅ Check complete - {total_kicked} member(s) kicked")
