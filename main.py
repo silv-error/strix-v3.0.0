@@ -7,6 +7,8 @@ import os
 import sys
 from dotenv import load_dotenv
 
+import discord
+
 # Load environment variables
 load_dotenv()
 
@@ -56,6 +58,7 @@ def main():
         print('💡 Use /help or !autokick_help for all commands')
         print('=' * 50)
         
+        await bot.change_presence(activity=discord.Game(name="🔍 Tracking unverified members"))
         await scan_existing_members(bot)
     
     # Start the bot
