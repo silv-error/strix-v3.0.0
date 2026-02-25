@@ -1,6 +1,4 @@
-"""
-Slash commands for the Auto-Kick Bot
-"""
+
 import discord
 from discord import app_commands
 from datetime import datetime, timedelta
@@ -14,12 +12,12 @@ def register_slash_commands(bot):
     
     @bot.tree.command(name="setup", description="Configure auto-kick settings for this server")
     @app_commands.describe(
-        role_name="The name of the unverified role",
+        role="The unverified role to track (mention it)",
         kick_after_minutes="Minutes before kicking (minimum 1)"
     )
     async def slash_setup(
         interaction: discord.Interaction,
-        role_name: Optional[str] = None,
+        role: Optional[discord.Role] = None,
         kick_after_minutes: Optional[int] = None
     ):
         """Slash command for setup"""
@@ -35,13 +33,20 @@ def register_slash_commands(bot):
         config = bot.get_guild_config(guild_id)
         
         # If no parameters, show current config
-        if role_name is None and kick_after_minutes is None:
+        if role is None and kick_after_minutes is None:
             embed = discord.Embed(
                 title="⚙️ Auto-Kick Configuration",
                 description=f"Current settings for **{interaction.guild.name}**",
                 color=COLOR_INFO
             )
-            embed.add_field(name="Target Role", value=f"`{config['role_name']}`", inline=False)
+            
+            # Show current role with mention if it exists
+            current_role = discord.utils.get(interaction.guild.roles, name=config['role_name'])
+            if current_role:
+                embed.add_field(name="Target Role", value=f"{current_role.mention} (`{config['role_name']}`)", inline=False)
+            else:
+                embed.add_field(name="Target Role", value=f"`{config['role_name']}` ⚠️ (Role not found)", inline=False)
+            
             embed.add_field(name="Kick After", value=f"`{config['kick_after_minutes']}` minutes", inline=False)
             
             dm_status = "✅ Enabled" if config.get('send_dm', False) else "❌ Disabled"
@@ -62,18 +67,12 @@ def register_slash_commands(bot):
             tracked_count = len(bot.unverified_members.get(guild_id, {}))
             embed.add_field(name="Currently Tracking", value=f"{tracked_count} member(s)", inline=False)
             
-            role = discord.utils.get(interaction.guild.roles, name=config['role_name'])
-            if role:
-                embed.add_field(name="Role Status", value=f"✅ {role.mention}", inline=False)
-            else:
-                embed.add_field(name="Role Status", value=f"⚠️ Role not found!", inline=False)
-            
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
         
         # Update configuration
-        if role_name is not None:
-            config['role_name'] = role_name
+        if role is not None:
+            config['role_name'] = role.name
         
         if kick_after_minutes is not None:
             if kick_after_minutes < 1:
@@ -89,8 +88,12 @@ def register_slash_commands(bot):
             description=f"Settings for **{interaction.guild.name}**",
             color=COLOR_SUCCESS
         )
-        embed.add_field(name="Target Role", value=f"`{config['role_name']}`", inline=False)
-        embed.add_field(name="Kick After", value=f"`{config['kick_after_minutes']}` minutes", inline=False)
+        
+        if role is not None:
+            embed.add_field(name="Target Role", value=f"{role.mention} (`{role.name}`)", inline=False)
+        
+        if kick_after_minutes is not None:
+            embed.add_field(name="Kick After", value=f"`{kick_after_minutes}` minutes", inline=False)
         
         await interaction.response.send_message(embed=embed, ephemeral=False)
         
