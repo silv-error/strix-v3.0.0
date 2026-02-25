@@ -1,0 +1,27 @@
+{
+    "770814980194959360": {
+        "role_name": "\u26a0\ufe0f Unverified",
+        "kick_after_minutes": 2880,
+        "send_dm": true,
+        "log_channel_id": 779274178565374012,
+        "allowed_roles": [
+            "Tech Support",
+            "Class Representative",
+            "Student Council"
+        ]
+    },
+    "840838320547299388": {
+        "role_name": "Unverified",
+        "kick_after_minutes": 2880,
+        "send_dm": false,
+        "log_channel_id": null,
+        "allowed_roles": []
+    },
+    "1472084189221486592": {
+        "role_name": "Unverified",
+        "kick_after_minutes": 2880,
+        "send_dm": false,
+        "log_channel_id": null,
+        "allowed_roles": []
+    }
+}
