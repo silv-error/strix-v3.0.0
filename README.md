@@ -39,6 +39,12 @@ CHECK_INTERVAL_MINUTES = 1
 SEND_DM_BEFORE_KICK = False
 ```
 
+Create `.env` file to store your discord bot token:
+
+```
+DISCORD_BOT_TOKEN=your-secret-token-here
+```
+
 ## 🤝 Contributing
 
 This is a clean, organized structure that makes it easy to:
