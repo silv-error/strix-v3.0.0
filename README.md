@@ -10,14 +10,7 @@ Professional Discord bot that automatically kicks members who don't verify withi
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment
-
-```bash
-cp .env.example .env
-# Edit .env and add your bot token
-```
-
-### 3. Run the Bot
+### 2. Run the Bot
 
 ```bash
 python main.py
@@ -44,14 +37,6 @@ Create `.env` file to store your discord bot token:
 ```
 DISCORD_BOT_TOKEN=your-secret-token-here
 ```
-
-## 🤝 Contributing
-
-This is a clean, organized structure that makes it easy to:
-- Add new features
-- Fix bugs
-- Understand code flow
-- Maintain the project
 
 ## 📄 License
 
