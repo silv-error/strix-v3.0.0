@@ -387,10 +387,104 @@ def register_slash_commands(bot):
             inline=False
         )
         
+        embed.add_field(
+            name="🔊 Voice Commands",
+            value="`/join` - Join a voice channel\n"
+                  "`/disconnect` - Leave voice channel",
+            inline=False
+        )
+        
         # Check if user has permissions
         if has_permission(bot, interaction):
             embed.set_footer(text="✅ You have permission to use these commands")
         else:
             embed.set_footer(text="⚠️ You don't have permission to use these commands")
         
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    
+    @bot.tree.command(name="join", description="Join a voice channel")
+    @app_commands.describe(channel="The voice channel to join")
+    async def slash_join(interaction: discord.Interaction, channel: discord.VoiceChannel):
+        """Join a voice channel"""
+        # Check permissions
+        if not has_permission(bot, interaction):
+            await interaction.response.send_message(
+                get_permission_error_message(bot, interaction.guild.id),
+                ephemeral=True
+            )
+            return
+        
+        # Check if bot is already in a voice channel in this guild
+        if interaction.guild.voice_client:
+            if interaction.guild.voice_client.channel.id == channel.id:
+                await interaction.response.send_message(
+                    f"✅ Already connected to {channel.mention}",
+                    ephemeral=False
+                )
+                return
+            else:
+                # Move to new channel
+                await interaction.guild.voice_client.move_to(channel)
+                embed = discord.Embed(
+                    title="🔊 Voice Channel",
+                    description=f"Moved to {channel.mention}",
+                    color=COLOR_SUCCESS
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=False)
+                return
+        
+        # Join the voice channel
+        try:
+            await channel.connect()
+            embed = discord.Embed(
+                title="🔊 Voice Channel",
+                description=f"Connected to {channel.mention}",
+                color=COLOR_SUCCESS
+            )
+            embed.set_footer(text="Use /disconnect to leave")
+            await interaction.response.send_message(embed=embed, ephemeral=False)
+        except discord.ClientException:
+            await interaction.response.send_message(
+                "❌ Already connected to a voice channel. Use `/disconnect` first.",
+                ephemeral=False
+            )
+        except discord.Forbidden:
+            await interaction.response.send_message(
+                f"❌ Missing permissions to join {channel.mention}",
+                ephemeral=False
+            )
+        except Exception as e:
+            await interaction.response.send_message(
+                f"❌ Error joining voice channel: {e}",
+                ephemeral=False
+            )
+    
+    @bot.tree.command(name="disconnect", description="Leave the voice channel")
+    async def slash_disconnect(interaction: discord.Interaction):
+        """Disconnect from voice channel"""
+        # Check permissions
+        if not has_permission(bot, interaction):
+            await interaction.response.send_message(
+                get_permission_error_message(bot, interaction.guild.id),
+                ephemeral=True
+            )
+            return
+        
+        # Check if bot is in a voice channel
+        if not interaction.guild.voice_client:
+            await interaction.response.send_message(
+                "❌ Not connected to any voice channel",
+                ephemeral=False
+            )
+            return
+        
+        # Disconnect
+        channel_name = interaction.guild.voice_client.channel.name
+        await interaction.guild.voice_client.disconnect()
+        
+        embed = discord.Embed(
+            title="🔊 Voice Channel",
+            description=f"Disconnected from **{channel_name}**",
+            color=COLOR_SUCCESS
+        )
         await interaction.response.send_message(embed=embed, ephemeral=False)

@@ -20,6 +20,7 @@ class AutoKickBot(commands.Bot):
         intents.members = True
         intents.guilds = True
         intents.message_content = True
+        intents.voice_states = True  # Enable voice channel functionality
         
         super().__init__(command_prefix=BOT_PREFIX, intents=intents, help_command=None)
         
