@@ -1,4 +1,4 @@
-# Strix Bot v3.0.0
+# Strix
 
 Professional Discord bot that automatically kicks members who don't verify within a set time period.
 
