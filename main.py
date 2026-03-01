@@ -58,7 +58,8 @@ def main():
         print('💡 Use /help or !autokick_help for all commands')
         print('=' * 50)
         
-        await bot.change_presence(activity=discord.Game(name="🔍 Tracking unverified members"))
+        len(bot.unverified_members)
+        await bot.change_presence(activity=discord.Game(name=f"🔍 Protecting server • {len(bot.unverified_members)} pending verifications"))
         await scan_existing_members(bot)
     
     # Start the bot
