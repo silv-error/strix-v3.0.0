@@ -1,12 +1,10 @@
 """
 Auto-Kick Bot - Main Entry Point
-
 A Discord bot that automatically kicks members who don't verify within a set time.
 """
 import os
 import sys
 from dotenv import load_dotenv
-
 import discord
 
 # Load environment variables
@@ -58,8 +56,15 @@ def main():
         print('💡 Use /help or !autokick_help for all commands')
         print('=' * 50)
         
-        len(bot.unverified_members)
-        await bot.change_presence(activity=discord.Game(name=f"🔍 Protecting server • {len(bot.unverified_members)} pending verifications"))
+        # Calculate total unverified members across all guilds
+        total_unverified = sum(len(members) for members in bot.unverified_members.values())
+        
+        # Set bot status with unverified count
+        await bot.change_presence(
+            activity=discord.Game(name=f"🔍 Protecting servers • {total_unverified} pending verifications")
+        )
+        
+        # Scan existing members
         await scan_existing_members(bot)
     
     # Start the bot
