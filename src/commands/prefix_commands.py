@@ -294,6 +294,13 @@ def register_prefix_commands(bot):
             inline=False
         )
         
+        embed.add_field(
+            name="🔊 Voice Commands",
+            value="`!join #channel` - Join voice channel\n"
+                  "`!disconnect` - Leave voice channel",
+            inline=False
+        )
+        
         # Check permissions
         if has_permission(bot, ctx):
             embed.set_footer(text="✅ You have permission to use these commands")
@@ -301,6 +308,54 @@ def register_prefix_commands(bot):
             embed.set_footer(text="⚠️ You don't have permission to use these commands")
         
         await ctx.send(embed=embed)
+    
+    @bot.command(name='join')
+    async def join_voice(ctx, channel: discord.VoiceChannel):
+        """Join a voice channel"""
+        # Check permissions
+        if not has_permission(bot, ctx):
+            await ctx.send(get_permission_error_message(bot, ctx.guild.id))
+            return
+        
+        # Check if bot is already in a voice channel
+        if ctx.guild.voice_client:
+            if ctx.guild.voice_client.channel.id == channel.id:
+                await ctx.send(f"✅ Already connected to {channel.mention}")
+                return
+            else:
+                # Move to new channel
+                await ctx.guild.voice_client.move_to(channel)
+                await ctx.send(f"🔊 Moved to {channel.mention}")
+                return
+        
+        # Join the voice channel
+        try:
+            await channel.connect()
+            await ctx.send(f"🔊 Connected to {channel.mention}")
+        except discord.ClientException:
+            await ctx.send("❌ Already connected to a voice channel. Use `!disconnect` first.")
+        except discord.Forbidden:
+            await ctx.send(f"❌ Missing permissions to join {channel.mention}")
+        except Exception as e:
+            await ctx.send(f"❌ Error joining voice channel: {e}")
+    
+    @bot.command(name='disconnect')
+    async def disconnect_voice(ctx):
+        """Disconnect from voice channel"""
+        # Check permissions
+        if not has_permission(bot, ctx):
+            await ctx.send(get_permission_error_message(bot, ctx.guild.id))
+            return
+        
+        # Check if bot is in a voice channel
+        if not ctx.guild.voice_client:
+            await ctx.send("❌ Not connected to any voice channel")
+            return
+        
+        # Disconnect
+        channel_name = ctx.guild.voice_client.channel.name
+        await ctx.guild.voice_client.disconnect()
+        await ctx.send(f"🔊 Disconnected from **{channel_name}**")
     
     @bot.event
     async def on_command_error(ctx, error):
