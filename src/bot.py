@@ -3,6 +3,7 @@ Main bot class and initialization
 """
 import discord
 from discord.ext import commands
+from datetime import datetime
 from src.config import (
     BOT_PREFIX, 
     UNVERIFIED_ROLE_NAME, 
@@ -106,7 +107,7 @@ class AutoKickBot(commands.Bot):
         embed = discord.Embed(
             description=f"**{member.mention}** was removed for not verifying within {config['kick_after_minutes']} minutes.",
             color=0x2b2d31,  # Discord dark gray
-            timestamp=discord.datetime.now()
+            timestamp=datetime.now()
         )
         
         embed.set_author(
