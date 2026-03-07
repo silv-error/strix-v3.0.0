@@ -2,6 +2,7 @@
 Background tasks for the Auto-Kick Bot
 """
 import discord
+from discord import activity
 from discord.ext import tasks
 from datetime import datetime, timedelta
 from src.config import CHECK_INTERVAL_MINUTES
@@ -276,7 +277,8 @@ def setup_background_tasks(bot):
             
             # Update bot status
             total_unverified = sum(len(members) for members in bot.unverified_members.values())
-            await bot.change_presence(activity=discord.Game(name=f"🔎 {total_unverified:,} unverified members"))
+            activity = discord.Activity(type=discord.ActivityType.watching, name=f"🔎 {total_unverified:,} unverified members")
+            await bot.change_presence(activity=activity)
             
         except Exception as e:
             print(f"❌ CRITICAL ERROR IN CHECK TASK: {e}")
