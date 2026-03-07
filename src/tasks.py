@@ -276,7 +276,7 @@ def setup_background_tasks(bot):
             
             # Update bot status
             total_unverified = sum(len(members) for members in bot.unverified_members.values())
-            await bot.change_presence(activity=discord.Game(name=f"🔍 Protecting servers • {total_unverified} pending verification"))
+            await bot.change_presence(activity=discord.Game(name=f"🔎 {total_unverified:,} unverified members"))
             
         except Exception as e:
             print(f"❌ CRITICAL ERROR IN CHECK TASK: {e}")
